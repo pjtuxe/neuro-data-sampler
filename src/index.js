@@ -1,28 +1,19 @@
-const { Notion } = require("@neurosity/notion");require("dotenv").config();
+const express = require('express')
+const config = require('./services/config')
+const app = express()
+app.use(express.json())
 
-const deviceId = process.env.DEVICE_ID || "";
-const email = process.env.EMAIL || "";
-const password = process.env.PASSWORD || "";
+app.get('/hc', (req, res) => {
+  res.send('ok')
+})
 
-const notion = new Notion({
-  deviceId
-});
+app.use('/', require('./controllers/record.controller'))
 
-const main = async () => {
-  await notion
-    .login({
-      email,
-      password
-    })
-    .catch((error) => {
-      console.log(error);
-      throw new Error(error);
-    });
-  console.log("Logged in");
-  
- notion.brainwaves("raw").subscribe((brainwaves) => {
-  console.log(brainwaves);
-});
-};
+async function main() {
+  await require('./services/mongo.service').init()
+  app.listen(config.port, () => {
+    console.log(`App listening on 0.0.0.0:${config.port}...`)
+  })
+}
 
-main();
+main()
